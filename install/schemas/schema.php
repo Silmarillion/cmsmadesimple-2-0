@@ -312,7 +312,8 @@ if (isset($CMS_INSTALL_CREATE_TABLES)) {
 		status C(255),
 		version C(255),
 		admin_only I1 DEFAULT 0,
-		active I1
+		active I1,
+		configured I1 DEFAULT 1
 	";
 	echo installer_create_tablesql($dbdict, $db_prefix."modules", $flds, $taboptarray);
 	echo installer_create_indexsql($dbdict, $db_prefix."modules", array('module_name'));

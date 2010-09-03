@@ -37,6 +37,7 @@ class CmsModuleFormExtension extends CmsModuleExtension
 	 *      redirect back to this exact page.  Defaults to false.
 	 * - 'params' - An array of key/value pairs to add as extra hidden parameters.  These will merge into any
 	 *      additional parameters you pass along in to the $params hash that aren't parsed by the function.
+	 * - 'module' - Module to call. Defaults to the module generating the form. 
 	 *
 	 * @param array An array of parameters to pass to the method.  Unrecognized parameters will be added as hidden
 	 *        variables to the form and merged correctly with anything in the 'params' key if passed.
@@ -57,7 +58,8 @@ class CmsModuleFormExtension extends CmsModuleExtension
 			'use_current_page_as_action' => coalesce_key($params, 'use_current_page_as_action', false, FILTER_VALIDATE_BOOLEAN),
 			'params' => coalesce_key($params, 'params', array()),
 			'id' => coalesce_key($params, 'id', $this->id),
-			'return_id' => coalesce_key($params, 'return_id', $this->return_id)
+			'return_id' => coalesce_key($params, 'return_id', $this->return_id),
+			'module' => coalesce_key($params, 'module', $this->module->get_name())
 		);
 		$default_params['html_id'] = coalesce_key($params,
 			'html_id',
@@ -81,7 +83,7 @@ class CmsModuleFormExtension extends CmsModuleExtension
 		if ($form_count == null)
 			$form_count = 1;
 
-		$mact = $this->module->get_name().','.$params['id'].','.$params['action'].','.($inline == true?1:0);
+		$mact = $params['module'].','.$params['id'].','.$params['action'].','.($inline == true?1:0);
 		$goto = '';
 		$use_current_page_as_action = $params['use_current_page_as_action']; unset($params['use_current_page_as_action']);
 		if ($use_current_page_as_action)

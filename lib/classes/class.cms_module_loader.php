@@ -344,6 +344,11 @@ class CmsModuleLoader extends CmsObject
 		
 		return false;
 	}
+
+	public static function is_configured($name)
+	{
+		return self::get_module_info($name, 'configured');
+	}
 	
 	public static function is_installed($name)
 	{
@@ -388,6 +393,7 @@ class CmsModuleLoader extends CmsObject
 	{
 		$module_data['installed'] = false;
 		$module_data['active'] = false;
+		$module_data['configured'] = false;
 		$module_data['installed_version'] = $module_data['version'];
 		$module_data['needs_upgrade'] = false;
 		$module_data['meets_minimum_core'] = true;
@@ -399,6 +405,7 @@ class CmsModuleLoader extends CmsObject
 			{
 				$module_data['installed'] = true;
 				$module_data['active'] = ($one_row['active'] == '1' ? true : false);
+				$module_data['configured'] = ($one_row['configured'] == '1' ? true : false);				
 				$module_data['installed_version'] = $one_row['version'];
 				$module_data['needs_upgrade'] = version_compare($module_data['installed_version'], $one_row['version'], '<');
 			}

@@ -87,10 +87,14 @@ foreach (CmsModuleLoader::get_module_list() as $module_name => $module_item)
 		$modules[$module_name]['activecol'] = (
 			$modules[$module_name]['active'] ?
 				$this->Url->link(array('action' => 'deactivate', 'module_name' => $module_name, 'value' => $image_true)) :
-					//"<a href='{$this_url}&amp;action=setfalse&amp;module=" . $module_name . "'>" . $image_true . "</a>" :
 				$this->Url->link(array('action' => 'activate', 'module_name' => $module_name, 'value' => $image_false))
-					//"<a href='{$this_url}&amp;action=settrue&amp;module=".$module_name."'>".$image_false."</a>"
 		);
+	}
+	else if (! $modules[$module_name]['configured'])
+	{
+		// needs configuring
+		$modules[$module_name]['statuscol'][]  = lang('Unconfigured');
+		$modules[$module_name]['actioncol'][] = $this->Url->link(array('action' => 'configure', 'module_name' => $module_name, 'value' => $this->lang('Configure')));
 	}
 	else // Must be installed
 	{
@@ -98,18 +102,11 @@ foreach (CmsModuleLoader::get_module_list() as $module_name => $module_item)
 		$modules[$module_name]['activecol'] = (
 			$modules[$module_name]['active'] ? 
 				$this->Url->link(array('action' => 'deactivate', 'module_name' => $module_name, 'value' => $image_true)) :
-					//"<a href='{$this_url}&amp;action=setfalse&amp;module=".$module_name."'>".$image_true."</a>" : 
 				$this->Url->link(array('action' => 'activate', 'module_name' => $module_name, 'value' => $image_false))
-					//"<a href='{$this_url}&amp;action=settrue&amp;module=".$module_name."'>".$image_false."</a>"
 		);
 		
 		if ($modules[$module_name]['can_uninstall'])
 		{
-			//$modules[$module_name]['actioncol'][] = "<a href=\"{$this_url}&amp;action=uninstall&amp;module=".$key."\" onclick=\"return confirm('".(
-			//	$rec['instance']->UninstallPreMessage() !== FALSE ?
-			//		cms_utf8entities($rec['instance']->UninstallPreMessage()) :
-			//		lang('uninstallconfirm').' '.$key)."');\">".lang('uninstall')."</a>";
-			
 			$modules[$module_name]['actioncol'][] = $this->Url->link(array('action' => 'uninstall', 'module_name' => $module_name, 'value' => $this->lang('uninstall'), 'warn_message' => $this->lang('uninstallconfirm'))); //"<a href=\"{$this_url}&amp;action=uninstall&amp;module=" . $module_name . "\">" . lang('uninstall') . "</a>";
 		}
 		else

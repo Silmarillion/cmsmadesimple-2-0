@@ -20,20 +20,21 @@
 # Or read it online: http://www.gnu.org/licenses/licenses.html#GPL
 #
 #-------------------------------------------------------------------------
+if (!isset($gCms)) die("Can't call actions directly!");
 
-if (!isset($gCms)) exit;
+$valid = false;
+if (isset($params['host']))
+{
+	// step 2, validate, store values, set module as configured
+	$this->Preference->set('host',$params['host']);	
+	$this->Configuration->set_configured();
+	$valid = true;
+}
 
-$this->Configuration->set_unconfigured();
-
-$this->Preference->set('mailer', 'smtp');
-$this->Preference->set('host', 'localhost');
-$this->Preference->set('port', 25 );
-$this->Preference->set('from', 'root@localhost');
-$this->Preference->set('fromuser', 'CMS Administrator');
-$this->Preference->set('sendmail', '/usr/sbin/sendmail');
-$this->Preference->set('timeout', 1000);
-$this->Preference->set('smtpauth', 0);
-$this->Preference->set('username', '');
-$this->Preference->set('password', '');
-
+if (!$valid)
+{
+	// first time through, present a form
+	echo $this->Template->process('configure.tpl');
+	ob_flush();
+}
 ?>

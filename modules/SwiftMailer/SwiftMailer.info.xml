@@ -18,4 +18,5 @@
 	<wysiwyg>false</wysiwyg>
 	<auto_install>true</auto_install>
 	<auto_upgrade>true</auto_upgrade>
+	<requires_configuration>true</requires_configuration>
 </module_info>

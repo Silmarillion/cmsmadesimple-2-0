@@ -28,6 +28,7 @@ class CmsModuleOperations extends CmsObject
 		if (CmsModuleLoader::get_module_info($name) !== false && !CmsModuleLoader::get_module_info($name, 'installed'))
 		{
 			$version = CmsModuleLoader::get_module_info($name, 'version');
+			$configured = (CmsModuleLoader::get_module_info($name, 'requires_configuration')?0:1);
 			
 			$filename = cms_join_path(ROOT_DIR, 'modules', $name, 'method.install.php');
 			if (@is_file($filename))
@@ -36,12 +37,11 @@ class CmsModuleOperations extends CmsObject
 				$module->include_file_in_scope($filename);
 			}
 			
-			$query = "INSERT INTO {modules} (module_name, version, status, active) VALUES (?, ?, ?, ?)";
-			cms_db()->Execute($query, array($name, $version, 'installed', 1));
+			$query = "INSERT INTO {modules} (module_name, version, status, active, configured) VALUES (?, ?, ?, ?, ?)";
+			cms_db()->Execute($query, array($name, $version, 'installed', 1, $configured));
 
 			$event_params = array('name' => $name, 'version' => $version);
 			CmsEventManager::send_event('Core:module_installed', $event_params);
-			//Events::SendEvent('Core', 'ModuleInstalled', $event_params);
 		}
 	}
 	
@@ -63,7 +63,6 @@ class CmsModuleOperations extends CmsObject
 
 			$event_params = array('name' => $module, 'version' => $version);
 			CmsEventManager::send_event('Core:module_uninstalled', $event_params);
-			//Events::SendEvent('Core', 'ModuleUninstalled', $event_params);
 		}
 	}
 	
@@ -78,7 +77,7 @@ class CmsModuleOperations extends CmsObject
 			if (@is_file($filename))
 			{
 				$module = CmsModuleLoader::get_module_class($name, false, false);
-				$module->include_file_in_scope($filename);
+				$module->include_file_in_scope($filename, array('oldversion' => $old_version, 'newversion' => $new_version));
 			}
 		
 			$query = "UPDATE {modules} SET version = ? WHERE module_name = ?";
@@ -86,7 +85,28 @@ class CmsModuleOperations extends CmsObject
 
 			$event_params = array('name' => $module, 'oldversion' => $old_version, 'newversion' => $new_version);
 			CmsEventManager::send_event('Core:module_upgraded', $event_params);
-			//Events::SendEvent('Core', 'ModuleUpgraded', $event_params);
+		}
+	}
+	
+
+	function configure($name)
+	{		
+		if (CmsModuleLoader::get_module_info($name) !== false && ! CmsModuleLoader::get_module_info($name, 'configured'))
+		{
+			$version = CmsModuleLoader::get_module_info($name, 'version');
+			$filename = cms_join_path(ROOT_DIR, 'modules', $name, 'method.configure.php');
+			if (@is_file($filename))
+			{
+				$module = CmsModuleLoader::get_module_class($name, false, false);
+				$module->set_id('m'.substr(md5($filename),0,5), -1);
+				$module->include_file_in_scope($filename, array('version'=>$version));
+				CmsProfiler::get_instance()->mark($filename.' file included'); // REMOVE-ME
+			}
+			if (CmsModuleLoader::get_module_info($name, 'configured'))
+			{
+				$event_params = array('name' => $module, 'version' => $version);
+				CmsEventManager::send_event('Core:module_configured', $event_params);
+			}
 		}
 	}
 	
